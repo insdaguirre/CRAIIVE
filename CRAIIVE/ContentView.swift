@@ -147,11 +147,11 @@ struct ContentView: View {
             .navigationDestination(for: AppSection.self) { section in
                 switch section {
                 case .fridge:
-                    MyFridgePage(goToMain: { path = NavigationPath() }, onIngredientTap: { ingredient in path.append(SectionIngredient(section: section, ingredient: ingredient)) }, goToUpload: { showUpload = true })
+                    MyFridgePage(goToMain: { path = NavigationPath() }, onIngredientTap: { ingredient in path.append(SectionIngredient(section: section, ingredient: ingredient)) }, goToUpload: { showUpload = true }, goToExplore: { showExplore = true })
                 case .freezer:
-                    MyFreezerPage(goToMain: { path = NavigationPath() }, onIngredientTap: { ingredient in path.append(SectionIngredient(section: section, ingredient: ingredient)) }, goToUpload: { showUpload = true })
+                    MyFreezerPage(goToMain: { path = NavigationPath() }, onIngredientTap: { ingredient in path.append(SectionIngredient(section: section, ingredient: ingredient)) }, goToUpload: { showUpload = true }, goToExplore: { showExplore = true })
                 case .pantry:
-                    MyPantryPage(goToMain: { path = NavigationPath() }, onIngredientTap: { ingredient in path.append(SectionIngredient(section: section, ingredient: ingredient)) }, goToUpload: { showUpload = true })
+                    MyPantryPage(goToMain: { path = NavigationPath() }, onIngredientTap: { ingredient in path.append(SectionIngredient(section: section, ingredient: ingredient)) }, goToUpload: { showUpload = true }, goToExplore: { showExplore = true })
                 }
             }
             .navigationDestination(for: SectionIngredient.self) { pair in
@@ -494,6 +494,7 @@ struct MyFridgePage: View {
     var goToMain: () -> Void = {}
     var onIngredientTap: (String) -> Void = { _ in }
     var goToUpload: () -> Void = {}
+    var goToExplore: () -> Void = {}
     var body: some View {
         VStack(spacing: 0) {
             // Header: App Title
@@ -564,6 +565,10 @@ struct MyFridgePage: View {
                     Image(systemName: "circle")
                 }
                 Spacer()
+                Button(action: goToExplore) {
+                    Image(systemName: "magnifyingglass")
+                }
+                Spacer()
                 Button(action: goToUpload) {
                     Image(systemName: "plus.circle")
                 }
@@ -601,6 +606,7 @@ struct MyFreezerPage: View {
     var goToMain: () -> Void = {}
     var onIngredientTap: (String) -> Void = { _ in }
     var goToUpload: () -> Void = {}
+    var goToExplore: () -> Void = {}
     var body: some View {
         VStack(spacing: 0) {
             // Header: App Title
@@ -668,6 +674,10 @@ struct MyFreezerPage: View {
                     Image(systemName: "circle")
                 }
                 Spacer()
+                Button(action: goToExplore) {
+                    Image(systemName: "magnifyingglass")
+                }
+                Spacer()
                 Button(action: goToUpload) {
                     Image(systemName: "plus.circle")
                 }
@@ -705,6 +715,7 @@ struct MyPantryPage: View {
     var goToMain: () -> Void = {}
     var onIngredientTap: (String) -> Void = { _ in }
     var goToUpload: () -> Void = {}
+    var goToExplore: () -> Void = {}
     var body: some View {
         VStack(spacing: 0) {
             // Header: App Title
@@ -770,6 +781,10 @@ struct MyPantryPage: View {
                 Spacer()
                 Button(action: goToMain) {
                     Image(systemName: "circle")
+                }
+                Spacer()
+                Button(action: goToExplore) {
+                    Image(systemName: "magnifyingglass")
                 }
                 Spacer()
                 Button(action: goToUpload) {
