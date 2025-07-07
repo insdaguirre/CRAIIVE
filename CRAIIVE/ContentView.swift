@@ -26,6 +26,7 @@ struct SectionIngredient: Hashable, Codable, Identifiable {
 struct ContentView: View {
     @State private var path = NavigationPath()
     @State private var selectedMainIngredient: String? = nil
+    @State private var showExplore = false
     var body: some View {
         NavigationStack(path: $path) {
             VStack(spacing: 0) {
@@ -123,7 +124,10 @@ struct ContentView: View {
                         Image(systemName: "circle") // ai icon placeholder
                     }
                     Spacer()
-                    Image(systemName: "magnifyingglass")
+                    Button(action: { showExplore = true }) {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(.accentColor)
+                    }
                     Spacer()
                     Image(systemName: "plus.circle")
                     Spacer()
@@ -152,6 +156,7 @@ struct ContentView: View {
             .navigationDestination(item: $selectedMainIngredient) { ingredient in
                 IngredientPage(ingredientName: ingredient)
             }
+            .navigationDestination(isPresented: $showExplore) { ExplorePage(goToMain: { showExplore = false; path = NavigationPath() }, goToExplore: { }) }
         }
     }
 }
@@ -735,6 +740,134 @@ struct MyPantryPage: View {
                 }
                 Spacer()
                 Image(systemName: "magnifyingglass")
+                Spacer()
+                Image(systemName: "plus.circle")
+                Spacer()
+                Image(systemName: "cart")
+                Spacer()
+                Image(systemName: "person.crop.circle")
+                Spacer()
+            }
+            .frame(height: 64)
+            .background(Color(.systemBackground))
+        }
+        .edgesIgnoringSafeArea(.bottom)
+        .navigationBarBackButtonHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+// MARK: - Explore Page (Placeholder)
+struct ExplorePage: View {
+    let filters = ["New", "Trending", "Quick", "Cocktails", "Italian"]
+    @State private var selectedFilter = "New"
+    let recipes = [
+        ("Recipe 1", "photo", "15 min"),
+        ("Recipe 2", "photo", "25 min"),
+        ("Recipe 3", "photo", "10 min"),
+        ("Recipe 4", "photo", "35 min"),
+        ("Recipe 5", "photo", "20 min"),
+        ("Recipe 6", "photo", "15 min"),
+        ("Recipe 7", "photo", "20 min"),
+        ("Recipe 8", "photo", "25 min"),
+        ("Recipe 9", "photo", "20 min"),
+        ("Recipe 10", "photo", "25 min"),
+        ("Recipe 11", "photo", "20 min"),
+        ("Recipe 12", "photo", "15 min")
+    ]
+    let columns = [
+        GridItem(.flexible()),
+        GridItem(.flexible()),
+        GridItem(.flexible())
+    ]
+    var goToMain: () -> Void = {}
+    var goToExplore: () -> Void = {}
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header: App Title and Profile Icon
+            ZStack {
+                Text("CRAIIVE")
+                    .font(.system(size: 36, weight: .bold))
+                HStack {
+                    Spacer()
+                    Image(systemName: "person.2")
+                        .font(.title2)
+                        .padding(.trailing, 16)
+                }
+            }
+            .padding(.top, 8)
+            .padding(.bottom, 8)
+
+            // Search Bar (placeholder)
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.gray)
+                Text("Find the recipe you're craiiving")
+                    .foregroundColor(.gray)
+                Spacer()
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
+            .padding(.horizontal)
+
+            // Filter Pills
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(filters, id: \.self) { filter in
+                        Button(action: { selectedFilter = filter }) {
+                            Text(filter)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .background(selectedFilter == filter ? Color(.label) : Color(.systemBackground))
+                                .foregroundColor(selectedFilter == filter ? .white : .black)
+                                .clipShape(Capsule())
+                                .overlay(
+                                    Capsule().stroke(Color(.systemGray3), lineWidth: selectedFilter == filter ? 0 : 1)
+                                )
+                        }
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+            }
+
+            // Recipes Grid
+            ScrollView {
+                LazyVGrid(columns: columns, spacing: 12) {
+                    ForEach(recipes, id: \.0) { recipe in
+                        ZStack(alignment: .bottomTrailing) {
+                            Image(systemName: recipe.1)
+                                .resizable()
+                                .aspectRatio(contentMode: .fill)
+                                .frame(width: 110, height: 110)
+                                .background(Color(.systemGray5))
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                            Text(recipe.2)
+                                .font(.caption)
+                                .padding(6)
+                                .background(Color.white.opacity(0.85))
+                                .clipShape(Capsule())
+                                .padding(6)
+                        }
+                    }
+                }
+                .padding(.horizontal, 8)
+                .padding(.bottom, 80)
+            }
+
+            // Bottom Navigation Bar (reuse from main page)
+            Divider()
+            HStack {
+                Spacer()
+                Button(action: goToMain) {
+                    Image(systemName: "circle")
+                }
+                Spacer()
+                Button(action: goToExplore) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.accentColor)
+                }
                 Spacer()
                 Image(systemName: "plus.circle")
                 Spacer()
