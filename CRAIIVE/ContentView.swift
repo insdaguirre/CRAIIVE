@@ -25,6 +25,7 @@ struct SectionIngredient: Hashable, Codable, Identifiable {
 
 struct ContentView: View {
     @State private var path = NavigationPath()
+    @State private var selectedMainIngredient: String? = nil
     var body: some View {
         NavigationStack(path: $path) {
             VStack(spacing: 0) {
@@ -82,11 +83,11 @@ struct ContentView: View {
                             path.append(AppSection.fridge)
                         })
                         HorizontalFoodList(items: [
-                            ("Fruit", "photo"), // Placeholder image
+                            ("Fruit", "photo"),
                             ("Wine", "photo"),
                             ("Milk", "photo"),
                             ("Eggs", "photo")
-                        ])
+                        ], onItemTap: { selectedMainIngredient = $0 })
 
                         // Freezer Section
                         SectionHeader(title: "What's In My Freezer?", onTap: {
@@ -97,7 +98,7 @@ struct ContentView: View {
                             ("Pizza", "photo"),
                             ("Fruit", "photo"),
                             ("Gelato", "photo")
-                        ])
+                        ], onItemTap: { selectedMainIngredient = $0 })
 
                         // Pantry Section
                         SectionHeader(title: "What's In My Pantry?", onTap: {
@@ -108,7 +109,7 @@ struct ContentView: View {
                             ("Marinara", "photo"),
                             ("Chips", "photo"),
                             ("Soda", "photo")
-                        ])
+                        ], onItemTap: { selectedMainIngredient = $0 })
                     }
                     .padding(.horizontal)
                     .padding(.bottom, 80) // For bottom nav bar spacing
@@ -148,6 +149,9 @@ struct ContentView: View {
             .navigationDestination(for: SectionIngredient.self) { pair in
                 IngredientPage(ingredientName: pair.ingredient)
             }
+            .navigationDestination(item: $selectedMainIngredient) { ingredient in
+                IngredientPage(ingredientName: ingredient)
+            }
         }
     }
 }
@@ -186,20 +190,24 @@ struct SectionHeader: View {
 // MARK: - Horizontal Food List Component (Placeholder images)
 struct HorizontalFoodList: View {
     let items: [(String, String)] // (label, imageName)
+    var onItemTap: ((String) -> Void)? = nil
     var body: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 24) {
                 ForEach(items, id: \.0) { item in
-                    VStack {
-                        // Placeholder for food image
-                        Image(systemName: "photo")
-                            .resizable()
-                            .frame(width: 56, height: 56)
-                            .background(Color(.systemGray5))
-                            .clipShape(RoundedRectangle(cornerRadius: 12))
-                        Text(item.0)
-                            .font(.caption)
+                    Button(action: { onItemTap?(item.0) }) {
+                        VStack {
+                            // Placeholder for food image
+                            Image(systemName: "photo")
+                                .resizable()
+                                .frame(width: 56, height: 56)
+                                .background(Color(.systemGray5))
+                                .clipShape(RoundedRectangle(cornerRadius: 12))
+                            Text(item.0)
+                                .font(.caption)
+                        }
                     }
+                    .buttonStyle(.plain)
                 }
             }
             .padding(.vertical, 4)
