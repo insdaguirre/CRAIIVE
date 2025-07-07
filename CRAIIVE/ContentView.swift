@@ -27,6 +27,7 @@ struct ContentView: View {
     @State private var path = NavigationPath()
     @State private var selectedMainIngredient: String? = nil
     @State private var showExplore = false
+    @State private var showInfluencerExplore = false
     var body: some View {
         NavigationStack(path: $path) {
             VStack(spacing: 0) {
@@ -156,7 +157,12 @@ struct ContentView: View {
             .navigationDestination(item: $selectedMainIngredient) { ingredient in
                 IngredientPage(ingredientName: ingredient)
             }
-            .navigationDestination(isPresented: $showExplore) { ExplorePage(goToMain: { showExplore = false; path = NavigationPath() }, goToExplore: { }) }
+            .navigationDestination(isPresented: $showExplore) {
+                ExplorePage(goToMain: { showExplore = false; path = NavigationPath() }, goToExplore: { }, goToInfluencer: { showInfluencerExplore = true })
+            }
+            .navigationDestination(isPresented: $showInfluencerExplore) {
+                InfluencerExplorePage(goBack: { showInfluencerExplore = false })
+            }
         }
     }
 }
@@ -782,6 +788,7 @@ struct ExplorePage: View {
     ]
     var goToMain: () -> Void = {}
     var goToExplore: () -> Void = {}
+    var goToInfluencer: () -> Void = {}
     var body: some View {
         VStack(spacing: 0) {
             // Header: App Title and Profile Icon
@@ -790,9 +797,11 @@ struct ExplorePage: View {
                     .font(.system(size: 36, weight: .bold))
                 HStack {
                     Spacer()
-                    Image(systemName: "person.2")
-                        .font(.title2)
-                        .padding(.trailing, 16)
+                    Button(action: goToInfluencer) {
+                        Image(systemName: "person.2")
+                            .font(.title2)
+                            .padding(.trailing, 16)
+                    }
                 }
             }
             .padding(.top, 8)
@@ -865,6 +874,126 @@ struct ExplorePage: View {
                 }
                 Spacer()
                 Button(action: goToExplore) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.accentColor)
+                }
+                Spacer()
+                Image(systemName: "plus.circle")
+                Spacer()
+                Image(systemName: "cart")
+                Spacer()
+                Image(systemName: "person.crop.circle")
+                Spacer()
+            }
+            .frame(height: 64)
+            .background(Color(.systemBackground))
+        }
+        .edgesIgnoringSafeArea(.bottom)
+        .navigationBarBackButtonHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+// MARK: - Influencer Explore Page
+struct InfluencerExplorePage: View {
+    var goBack: () -> Void = {}
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header: Back Button and Title
+            HStack {
+                Button(action: goBack) {
+                    Image(systemName: "chevron.left")
+                        .font(.title2)
+                        .padding(.leading, 8)
+                }
+                Spacer()
+                Text("CRAIIVE")
+                    .font(.system(size: 36, weight: .bold))
+                Spacer()
+                // Invisible icon for spacing
+                Image(systemName: "chevron.left")
+                    .opacity(0)
+                    .padding(.trailing, 8)
+            }
+            .padding(.top, 8)
+            .padding(.bottom, 8)
+
+            // Search Bar (placeholder)
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.gray)
+                Text("Find a recipe")
+                    .foregroundColor(.gray)
+                Spacer()
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
+            .padding(.horizontal)
+
+            // Famous Friends
+            SectionHeader(title: "Famous Friends!", onTap: {})
+                .padding(.top, 16)
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 16) {
+                    ForEach(0..<3) { _ in
+                        Image(systemName: "person.crop.square")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 110, height: 110)
+                            .background(Color(.systemGray5))
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                    }
+                }
+                .padding(.horizontal)
+            }
+            .padding(.bottom, 8)
+
+            // Chefs
+            SectionHeader(title: "Chefs", onTap: {})
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 16) {
+                    ForEach(0..<2) { _ in
+                        Image(systemName: "person.crop.square")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                            .frame(width: 110, height: 110)
+                            .background(Color(.systemGray5))
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                    }
+                }
+                .padding(.horizontal)
+            }
+            .padding(.bottom, 8)
+
+            // Restaurants
+            SectionHeader(title: "Restaurants", onTap: {})
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 16) {
+                    ForEach(0..<3) { _ in
+                        Image(systemName: "photo")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(width: 110, height: 80)
+                            .background(Color(.systemGray5))
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                    }
+                }
+                .padding(.horizontal)
+            }
+            .padding(.bottom, 8)
+
+            Spacer()
+
+            // Bottom Navigation Bar (reuse from main page)
+            Divider()
+            HStack {
+                Spacer()
+                Button(action: goBack) {
+                    Image(systemName: "circle")
+                }
+                Spacer()
+                Button(action: goBack) {
                     Image(systemName: "magnifyingglass")
                         .foregroundColor(.accentColor)
                 }
