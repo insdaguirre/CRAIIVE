@@ -207,9 +207,112 @@ struct HorizontalFoodList: View {
     }
 }
 
+// MARK: - Nutrition Page (Placeholder)
+struct NutritionPage: View {
+    var ingredientName: String = "Wine"
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header: App Title
+            Text("CRAIIVE")
+                .font(.system(size: 36, weight: .bold))
+                .padding(.top, 8)
+                .padding(.bottom, 8)
+
+            // Nutrition Title
+            Text("Nutrition")
+                .font(.title)
+                .fontWeight(.bold)
+                .padding(.bottom, 16)
+
+            // Calories Circle
+            ZStack {
+                Circle()
+                    .stroke(Color.black, lineWidth: 1)
+                    .frame(width: 120, height: 120)
+                VStack(spacing: 2) {
+                    Text("152")
+                        .font(.system(size: 32, weight: .bold))
+                    Text("kcal")
+                        .font(.title3)
+                        .foregroundColor(.gray)
+                }
+            }
+            .padding(.bottom, 24)
+
+            // Nutrition Facts
+            VStack(alignment: .leading, spacing: 0) {
+                Text("Amount per glass")
+                    .font(.headline)
+                    .padding(.bottom, 12)
+                NutritionFactRow(label: "Total Fat", value: "0g", percent: "0%")
+                NutritionFactRow(label: "Saturated Fat", value: "0g", percent: "0%")
+                NutritionFactRow(label: "Sodium", value: "5mg", percent: "0%")
+                NutritionFactRow(label: "Total Carbs", value: "4g", percent: "1%")
+                NutritionFactRow(label: "Dietary Fiber", value: "0g", percent: "0%")
+                NutritionFactRow(label: "Total Sugars", value: "1g", percent: "–", sublabel: "Includes 1.5g Added Sugars")
+                NutritionFactRow(label: "Protein", value: "0g", percent: "0%")
+            }
+            .padding(.horizontal, 24)
+            .padding(.bottom, 24)
+
+            Spacer()
+
+            // Bottom Navigation Bar (reuse from main page)
+            Divider()
+            HStack {
+                Spacer()
+                Image(systemName: "circle") // ai icon placeholder
+                Spacer()
+                Image(systemName: "magnifyingglass")
+                Spacer()
+                Image(systemName: "plus.circle")
+                Spacer()
+                Image(systemName: "cart")
+                Spacer()
+                Image(systemName: "person.crop.circle")
+                Spacer()
+            }
+            .frame(height: 64)
+            .background(Color(.systemBackground))
+        }
+        .edgesIgnoringSafeArea(.bottom)
+    }
+}
+
+// MARK: - Nutrition Fact Row (Placeholder)
+struct NutritionFactRow: View {
+    var label: String
+    var value: String
+    var percent: String
+    var sublabel: String? = nil
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            HStack {
+                Text(label)
+                    .font(.body)
+                Spacer()
+                Text(value)
+                    .font(.body)
+                Text(percent)
+                    .font(.body)
+                    .foregroundColor(.gray)
+            }
+            if let sub = sublabel {
+                Text(sub)
+                    .font(.caption)
+                    .foregroundColor(.gray)
+                    .padding(.leading, 4)
+            }
+        }
+        .padding(.vertical, 6)
+        Divider()
+    }
+}
+
 // MARK: - Ingredient Page (Placeholder)
 struct IngredientPage: View {
     var ingredientName: String = "Wine"
+    @State private var showNutrition = false
     var body: some View {
         VStack(spacing: 0) {
             // Header: App Title
@@ -221,11 +324,14 @@ struct IngredientPage: View {
             Spacer()
 
             // Ingredient Image (placeholder)
-            Image(systemName: "photo")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .frame(height: 220)
-                .padding(.bottom, 8)
+            Button(action: { showNutrition = true }) {
+                Image(systemName: "photo")
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(height: 220)
+                    .padding(.bottom, 8)
+            }
+            .buttonStyle(.plain)
 
             // Ingredient Name
             Text(ingredientName)
@@ -284,6 +390,10 @@ struct IngredientPage: View {
             .background(Color(.systemBackground))
         }
         .edgesIgnoringSafeArea(.bottom)
+        .background(
+            NavigationLink(destination: NutritionPage(ingredientName: ingredientName), isActive: $showNutrition) { EmptyView() }
+                .hidden()
+        )
     }
 }
 
