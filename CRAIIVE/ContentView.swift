@@ -1245,6 +1245,7 @@ struct UploadPage: View {
 struct LoadingPage: View {
     var onComplete: () -> Void = {}
     @State private var progress: CGFloat = 0.0
+    @State private var isActive = true
     var goToMain: () -> Void = {}
     var goToExplore: () -> Void = {}
     var goToUpload: () -> Void = {}
@@ -1306,8 +1307,13 @@ struct LoadingPage: View {
                 progress = 1.0
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
-                onComplete()
+                if isActive {
+                    onComplete()
+                }
             }
+        }
+        .onDisappear {
+            isActive = false
         }
     }
 }
