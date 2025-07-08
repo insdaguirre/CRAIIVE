@@ -158,7 +158,7 @@ struct ContentView: View {
                 IngredientPage(ingredientName: pair.ingredient, goToMain: { path = NavigationPath() }, goToExplore: { showExplore = true }, goToUpload: { showUpload = true })
             }
             .navigationDestination(item: $selectedMainIngredient) { ingredient in
-                IngredientPage(ingredientName: ingredient, goToMain: { path = NavigationPath() }, goToExplore: { showExplore = true }, goToUpload: { showUpload = true })
+                IngredientPage(ingredientName: ingredient, goToMain: { selectedMainIngredient = nil }, goToExplore: { showExplore = true }, goToUpload: { showUpload = true })
             }
             .navigationDestination(isPresented: $showExplore) {
                 ExplorePage(goToMain: { showExplore = false; path = NavigationPath() }, goToExplore: { }, goToInfluencer: { showInfluencerExplore = true }, goToUpload: { showUpload = true })
@@ -352,62 +352,74 @@ struct IngredientPage: View {
     @State private var showNutrition = false
     var body: some View {
         VStack(spacing: 0) {
-            // Header: App Title
-            Text("CRAIIVE")
-                .font(.system(size: 36, weight: .bold))
-                .padding(.top, 8)
-                .padding(.bottom, 8)
+            ZStack {
+                // Main content
+                VStack(spacing: 0) {
+                    // Header: App Title
+                    Text("CRAIIVE")
+                        .font(.system(size: 36, weight: .bold))
+                        .padding(.top, 8)
+                        .padding(.bottom, 8)
 
-            Spacer()
+                    Spacer()
 
-            // Ingredient Image (placeholder)
-            Button(action: { showNutrition = true }) {
-                Image(systemName: "photo")
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .frame(height: 220)
-                    .padding(.bottom, 8)
-            }
-            .buttonStyle(.plain)
+                    // Ingredient Image (placeholder)
+                    Button(action: { showNutrition = true }) {
+                        Image(systemName: "photo")
+                            .resizable()
+                            .aspectRatio(contentMode: .fit)
+                            .frame(height: 220)
+                            .padding(.bottom, 8)
+                    }
+                    .buttonStyle(.plain)
 
-            // Ingredient Name
-            Text(ingredientName)
-                .font(.title)
-                .fontWeight(.semibold)
-                .padding(.bottom, 24)
+                    // Ingredient Name
+                    Text(ingredientName)
+                        .font(.title)
+                        .fontWeight(.semibold)
+                        .padding(.bottom, 24)
 
-            // Nutrition/Stock Row
-            HStack(spacing: 32) {
-                VStack {
-                    Text("152")
-                        .font(.system(size: 32, weight: .bold))
-                    Text("Calories")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
+                    // Nutrition/Stock Row
+                    HStack(spacing: 32) {
+                        VStack {
+                            Text("152")
+                                .font(.system(size: 32, weight: .bold))
+                            Text("Calories")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                        Divider().frame(height: 40)
+                        VStack {
+                            Text("1,2g")
+                                .font(.system(size: 32, weight: .bold))
+                            Text("In Stock")
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                        }
+                    }
+                    .padding(.horizontal, 32)
+                    .padding(.bottom, 24)
+
+                    // Store Cards (placeholder)
+                    HStack(spacing: 16) {
+                        IngredientStoreCard(store: "TRADER JOE'S", price: "$13.99", stock: "In Stock", distance: "0.5 mi")
+                        IngredientStoreCard(store: "WHOLE FOODS", price: "$14.99", stock: "Low Stock", distance: "1,2 mi")
+                        IngredientStoreCard(store: "Walmart", price: "$12.49", stock: "In Stock", distance: "1,5 mi")
+                    }
+                    .padding(.horizontal, 8)
+                    .padding(.bottom, 24)
+
+                    Spacer()
                 }
-                Divider().frame(height: 40)
-                VStack {
-                    Text("1,2g")
-                        .font(.system(size: 32, weight: .bold))
-                    Text("In Stock")
-                        .font(.subheadline)
-                        .foregroundColor(.gray)
+                // Overlay to dismiss NutritionPage when sheet is open and user taps anywhere except nav bar
+                if showNutrition {
+                    Color.black.opacity(0.001) // invisible but catches taps
+                        .ignoresSafeArea(edges: .all)
+                        .onTapGesture {
+                            showNutrition = false
+                        }
                 }
             }
-            .padding(.horizontal, 32)
-            .padding(.bottom, 24)
-
-            // Store Cards (placeholder)
-            HStack(spacing: 16) {
-                IngredientStoreCard(store: "TRADER JOE'S", price: "$13.99", stock: "In Stock", distance: "0.5 mi")
-                IngredientStoreCard(store: "WHOLE FOODS", price: "$14.99", stock: "Low Stock", distance: "1,2 mi")
-                IngredientStoreCard(store: "Walmart", price: "$12.49", stock: "In Stock", distance: "1,5 mi")
-            }
-            .padding(.horizontal, 8)
-            .padding(.bottom, 24)
-
-            Spacer()
-
             // Bottom Navigation Bar (reuse from main page)
             Divider()
             HStack {
@@ -433,10 +445,9 @@ struct IngredientPage: View {
             .background(Color(.systemBackground))
         }
         .edgesIgnoringSafeArea(.bottom)
-        .background(
-            NavigationLink(destination: NutritionPage(ingredientName: ingredientName, goToMain: goToMain, goToExplore: goToExplore, goToUpload: goToUpload), isActive: $showNutrition) { EmptyView() }
-                .hidden()
-        )
+        .sheet(isPresented: $showNutrition) {
+            NutritionPage(ingredientName: ingredientName, goToMain: goToMain, goToExplore: goToExplore, goToUpload: goToUpload)
+        }
     }
 }
 
