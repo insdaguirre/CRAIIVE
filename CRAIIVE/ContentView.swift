@@ -447,6 +447,9 @@ struct IngredientPage: View {
         .edgesIgnoringSafeArea(.bottom)
         .sheet(isPresented: $showNutrition) {
             NutritionPage(ingredientName: ingredientName, goToMain: goToMain, goToExplore: goToExplore, goToUpload: goToUpload)
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+                .interactiveDismissDisabled(false)
         }
     }
 }
