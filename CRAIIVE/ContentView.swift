@@ -29,6 +29,7 @@ struct ContentView: View {
     @State private var showExplore = false
     @State private var showInfluencerExplore = false
     @State private var showUpload = false
+    @State private var showSearch = false
     var body: some View {
         NavigationStack(path: $path) {
             VStack(spacing: 0) {
@@ -161,13 +162,26 @@ struct ContentView: View {
                 IngredientPage(ingredientName: ingredient, goToMain: { selectedMainIngredient = nil }, goToExplore: { showExplore = true }, goToUpload: { showUpload = true })
             }
             .navigationDestination(isPresented: $showExplore) {
-                ExplorePage(goToMain: { showExplore = false; path = NavigationPath() }, goToExplore: { }, goToInfluencer: { showInfluencerExplore = true }, goToUpload: { showUpload = true })
+                ExplorePage(
+                    goToMain: { showExplore = false; path = NavigationPath() },
+                    goToExplore: { },
+                    goToInfluencer: { showInfluencerExplore = true },
+                    goToUpload: { showUpload = true },
+                    goToSearch: { showSearch = true }
+                )
             }
             .navigationDestination(isPresented: $showInfluencerExplore) {
                 InfluencerExplorePage(goBack: { showInfluencerExplore = false }, goToUpload: { showUpload = true })
             }
             .navigationDestination(isPresented: $showUpload) {
                 UploadPage(goToMain: { showUpload = false; path = NavigationPath() }, goToExplore: { showUpload = false; showExplore = true })
+            }
+            .navigationDestination(isPresented: $showSearch) {
+                SearchPage(
+                    goToMain: { showSearch = false; path = NavigationPath() },
+                    goToExplore: { showSearch = false; showExplore = true },
+                    goToUpload: { showUpload = true }
+                )
             }
         }
     }
@@ -846,6 +860,7 @@ struct ExplorePage: View {
     var goToExplore: () -> Void = {}
     var goToInfluencer: () -> Void = {}
     var goToUpload: () -> Void = {}
+    var goToSearch: () -> Void = {}
     var body: some View {
         VStack(spacing: 0) {
             // Header: App Title and Profile Icon
@@ -864,18 +879,20 @@ struct ExplorePage: View {
             .padding(.top, 8)
             .padding(.bottom, 8)
 
-            // Search Bar (placeholder)
-            HStack {
-                Image(systemName: "magnifyingglass")
-                    .foregroundColor(.gray)
-                Text("Find the recipe you're craiiving")
-                    .foregroundColor(.gray)
-                Spacer()
+            // Search Bar (tappable)
+            Button(action: goToSearch) {
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.gray)
+                    Text("Find the recipe you're craiiving")
+                        .foregroundColor(.gray)
+                    Spacer()
+                }
+                .padding()
+                .background(Color(.systemGray6))
+                .cornerRadius(12)
+                .padding(.horizontal)
             }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
-            .padding(.horizontal)
 
             // Filter Pills
             ScrollView(.horizontal, showsIndicators: false) {
@@ -1163,6 +1180,81 @@ struct UploadPage: View {
         .edgesIgnoringSafeArea(.bottom)
         .navigationBarBackButtonHidden(true)
         .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+// MARK: - Search Page (Figma-inspired)
+struct SearchPage: View {
+    var goToMain: () -> Void = {}
+    var goToExplore: () -> Void = {}
+    var goToUpload: () -> Void = {}
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header: App Title
+            Text("CRAIIVE")
+                .font(.system(size: 36, weight: .bold))
+                .padding(.top, 8)
+                .padding(.bottom, 8)
+            // Centered Card with text
+            Spacer()
+            ZStack {
+                RoundedRectangle(cornerRadius: 24)
+                    .fill(Color(.systemGray6))
+                    .frame(width: 300, height: 200)
+                    .shadow(color: Color(.black).opacity(0.08), radius: 8, x: 0, y: 4)
+                VStack(spacing: 0) {
+                    Text("Curate.")
+                        .font(.system(size: 24, weight: .semibold, design: .default))
+                        .italic()
+                    Text("Your.")
+                        .font(.system(size: 24, weight: .semibold, design: .default))
+                        .italic()
+                    Text("Craving.")
+                        .font(.system(size: 24, weight: .semibold, design: .default))
+                        .italic()
+                }
+                .foregroundColor(.black)
+            }
+            .padding(.bottom, 32)
+            // Search Bar
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.gray)
+                Text("ex. minimalist breakfast, indulgent tr")
+                    .foregroundColor(.gray)
+                Spacer()
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
+            .padding(.horizontal)
+            Spacer()
+            // Bottom Navigation Bar (reuse from main page)
+            Divider()
+            HStack {
+                Spacer()
+                Button(action: goToMain) {
+                    Image(systemName: "circle")
+                }
+                Spacer()
+                Button(action: goToExplore) {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.accentColor)
+                }
+                Spacer()
+                Button(action: goToUpload) {
+                    Image(systemName: "plus.circle")
+                }
+                Spacer()
+                Image(systemName: "cart")
+                Spacer()
+                Image(systemName: "person.crop.circle")
+                Spacer()
+            }
+            .frame(height: 64)
+            .background(Color(.systemBackground))
+        }
+        .edgesIgnoringSafeArea(.bottom)
     }
 }
 
