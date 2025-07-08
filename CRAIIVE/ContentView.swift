@@ -32,6 +32,7 @@ struct ContentView: View {
     @State private var showSearch = false
     @State private var showLoading = false
     @State private var showRecipe = false
+    @State private var showShopping = false
     @State private var lastSearch: String = ""
     var body: some View {
         NavigationStack(path: $path) {
@@ -139,7 +140,9 @@ struct ContentView: View {
                         Image(systemName: "plus.circle")
                     }
                     Spacer()
-                    Image(systemName: "cart")
+                    Button(action: { showShopping = true }) {
+                        Image(systemName: "cart")
+                    }
                     Spacer()
                     Image(systemName: "person.crop.circle")
                     Spacer()
@@ -151,18 +154,18 @@ struct ContentView: View {
             .navigationDestination(for: AppSection.self) { section in
                 switch section {
                 case .fridge:
-                    MyFridgePage(goToMain: { path = NavigationPath() }, onIngredientTap: { ingredient in path.append(SectionIngredient(section: section, ingredient: ingredient)) }, goToUpload: { showUpload = true }, goToExplore: { showExplore = true })
+                    MyFridgePage(goToMain: { path = NavigationPath() }, onIngredientTap: { ingredient in path.append(SectionIngredient(section: section, ingredient: ingredient)) }, goToUpload: { showUpload = true }, goToExplore: { showExplore = true }, goToCart: { showShopping = true })
                 case .freezer:
-                    MyFreezerPage(goToMain: { path = NavigationPath() }, onIngredientTap: { ingredient in path.append(SectionIngredient(section: section, ingredient: ingredient)) }, goToUpload: { showUpload = true }, goToExplore: { showExplore = true })
+                    MyFreezerPage(goToMain: { path = NavigationPath() }, onIngredientTap: { ingredient in path.append(SectionIngredient(section: section, ingredient: ingredient)) }, goToUpload: { showUpload = true }, goToExplore: { showExplore = true }, goToCart: { showShopping = true })
                 case .pantry:
-                    MyPantryPage(goToMain: { path = NavigationPath() }, onIngredientTap: { ingredient in path.append(SectionIngredient(section: section, ingredient: ingredient)) }, goToUpload: { showUpload = true }, goToExplore: { showExplore = true })
+                    MyPantryPage(goToMain: { path = NavigationPath() }, onIngredientTap: { ingredient in path.append(SectionIngredient(section: section, ingredient: ingredient)) }, goToUpload: { showUpload = true }, goToExplore: { showExplore = true }, goToCart: { showShopping = true })
                 }
             }
             .navigationDestination(for: SectionIngredient.self) { pair in
-                IngredientPage(ingredientName: pair.ingredient, goToMain: { path = NavigationPath() }, goToExplore: { showExplore = true }, goToUpload: { showUpload = true })
+                IngredientPage(ingredientName: pair.ingredient, goToMain: { path = NavigationPath() }, goToExplore: { showExplore = true }, goToUpload: { showUpload = true }, goToCart: { showShopping = true })
             }
             .navigationDestination(item: $selectedMainIngredient) { ingredient in
-                IngredientPage(ingredientName: ingredient, goToMain: { selectedMainIngredient = nil }, goToExplore: { showExplore = true }, goToUpload: { showUpload = true })
+                IngredientPage(ingredientName: ingredient, goToMain: { selectedMainIngredient = nil }, goToExplore: { showExplore = true }, goToUpload: { showUpload = true }, goToCart: { showShopping = true })
             }
             .navigationDestination(isPresented: $showExplore) {
                 ExplorePage(
@@ -170,14 +173,15 @@ struct ContentView: View {
                     goToExplore: { },
                     goToInfluencer: { showInfluencerExplore = true },
                     goToUpload: { showUpload = true },
-                    goToSearch: { showSearch = true }
+                    goToSearch: { showSearch = true },
+                    goToCart: { showShopping = true }
                 )
             }
             .navigationDestination(isPresented: $showInfluencerExplore) {
-                InfluencerExplorePage(goBack: { showInfluencerExplore = false }, goToUpload: { showUpload = true })
+                InfluencerExplorePage(goBack: { showInfluencerExplore = false }, goToUpload: { showUpload = true }, goToCart: { showShopping = true })
             }
             .navigationDestination(isPresented: $showUpload) {
-                UploadPage(goToMain: { showUpload = false; path = NavigationPath() }, goToExplore: { showUpload = false; showExplore = true })
+                UploadPage(goToMain: { showUpload = false; path = NavigationPath() }, goToExplore: { showUpload = false; showExplore = true }, goToCart: { showShopping = true })
             }
             .navigationDestination(isPresented: $showSearch) {
                 SearchPage(
@@ -189,14 +193,15 @@ struct ContentView: View {
                         showSearch = false
                         showLoading = true
                     },
-                    goBack: { showSearch = false; showExplore = true }
+                    goBack: { showSearch = false; showExplore = true },
+                    goToCart: { showShopping = true }
                 )
             }
             .navigationDestination(isPresented: $showLoading) {
                 LoadingPage(onComplete: {
                     showLoading = false
                     showRecipe = true
-                })
+                }, goToCart: { showShopping = true })
             }
             .navigationDestination(isPresented: $showRecipe) {
                 RecipePage(
@@ -204,10 +209,13 @@ struct ContentView: View {
                     goToMain: { showRecipe = false; path = NavigationPath() },
                     goToExplore: { showRecipe = false; showExplore = true },
                     goToUpload: { showRecipe = false; showUpload = true },
-                    goToCart: {},
+                    goToCart: { showShopping = true },
                     goToProfile: {},
                     goBack: { showRecipe = false; showSearch = true }
                 )
+            }
+            .navigationDestination(isPresented: $showShopping) {
+                ShoppingPage(goToMain: { showShopping = false; path = NavigationPath() }, goToExplore: { showShopping = false; showExplore = true }, goToUpload: { showShopping = false; showUpload = true }, goToCart: { showShopping = true }, goToProfile: {})
             }
         }
     }
@@ -278,6 +286,7 @@ struct NutritionPage: View {
     var goToMain: () -> Void = {}
     var goToExplore: () -> Void = {}
     var goToUpload: () -> Void = {}
+    var goToCart: () -> Void = {}
     var body: some View {
         VStack(spacing: 0) {
             // Header: App Title
@@ -341,7 +350,9 @@ struct NutritionPage: View {
                     Image(systemName: "plus.circle")
                 }
                 Spacer()
-                Image(systemName: "cart")
+                Button(action: goToCart) {
+                    Image(systemName: "cart")
+                }
                 Spacer()
                 Image(systemName: "person.crop.circle")
                 Spacer()
@@ -389,6 +400,7 @@ struct IngredientPage: View {
     var goToMain: () -> Void = {}
     var goToExplore: () -> Void = {}
     var goToUpload: () -> Void = {}
+    var goToCart: () -> Void = {}
     @State private var showNutrition = false
     var body: some View {
         VStack(spacing: 0) {
@@ -465,7 +477,7 @@ struct IngredientPage: View {
             HStack {
                 Spacer()
                 Button(action: goToMain) {
-                    Image(systemName: "circle") // ai icon placeholder
+                    Image(systemName: "circle")
                 }
                 Spacer()
                 Button(action: goToExplore) {
@@ -476,7 +488,9 @@ struct IngredientPage: View {
                     Image(systemName: "plus.circle")
                 }
                 Spacer()
-                Image(systemName: "cart")
+                Button(action: goToCart) {
+                    Image(systemName: "cart")
+                }
                 Spacer()
                 Image(systemName: "person.crop.circle")
                 Spacer()
@@ -486,7 +500,7 @@ struct IngredientPage: View {
         }
         .edgesIgnoringSafeArea(.bottom)
         .sheet(isPresented: $showNutrition) {
-            NutritionPage(ingredientName: ingredientName, goToMain: goToMain, goToExplore: goToExplore, goToUpload: goToUpload)
+            NutritionPage(ingredientName: ingredientName, goToMain: goToMain, goToExplore: goToExplore, goToUpload: goToUpload, goToCart: goToCart)
                 .presentationDetents([.medium, .large])
                 .presentationDragIndicator(.visible)
                 .interactiveDismissDisabled(false)
@@ -549,6 +563,7 @@ struct MyFridgePage: View {
     var onIngredientTap: (String) -> Void = { _ in }
     var goToUpload: () -> Void = {}
     var goToExplore: () -> Void = {}
+    var goToCart: () -> Void = {}
     var body: some View {
         VStack(spacing: 0) {
             // Header: App Title
@@ -627,7 +642,9 @@ struct MyFridgePage: View {
                     Image(systemName: "plus.circle")
                 }
                 Spacer()
-                Image(systemName: "cart")
+                Button(action: goToCart) {
+                    Image(systemName: "cart")
+                }
                 Spacer()
                 Image(systemName: "person.crop.circle")
                 Spacer()
@@ -661,6 +678,7 @@ struct MyFreezerPage: View {
     var onIngredientTap: (String) -> Void = { _ in }
     var goToUpload: () -> Void = {}
     var goToExplore: () -> Void = {}
+    var goToCart: () -> Void = {}
     var body: some View {
         VStack(spacing: 0) {
             // Header: App Title
@@ -736,7 +754,9 @@ struct MyFreezerPage: View {
                     Image(systemName: "plus.circle")
                 }
                 Spacer()
-                Image(systemName: "cart")
+                Button(action: goToCart) {
+                    Image(systemName: "cart")
+                }
                 Spacer()
                 Image(systemName: "person.crop.circle")
                 Spacer()
@@ -770,6 +790,7 @@ struct MyPantryPage: View {
     var onIngredientTap: (String) -> Void = { _ in }
     var goToUpload: () -> Void = {}
     var goToExplore: () -> Void = {}
+    var goToCart: () -> Void = {}
     var body: some View {
         VStack(spacing: 0) {
             // Header: App Title
@@ -845,7 +866,9 @@ struct MyPantryPage: View {
                     Image(systemName: "plus.circle")
                 }
                 Spacer()
-                Image(systemName: "cart")
+                Button(action: goToCart) {
+                    Image(systemName: "cart")
+                }
                 Spacer()
                 Image(systemName: "person.crop.circle")
                 Spacer()
@@ -887,6 +910,7 @@ struct ExplorePage: View {
     var goToInfluencer: () -> Void = {}
     var goToUpload: () -> Void = {}
     var goToSearch: () -> Void = {}
+    var goToCart: () -> Void = {}
     var body: some View {
         VStack(spacing: 0) {
             // Header: App Title and Profile Icon
@@ -982,7 +1006,9 @@ struct ExplorePage: View {
                     Image(systemName: "plus.circle")
                 }
                 Spacer()
-                Image(systemName: "cart")
+                Button(action: goToCart) {
+                    Image(systemName: "cart")
+                }
                 Spacer()
                 Image(systemName: "person.crop.circle")
                 Spacer()
@@ -1000,6 +1026,7 @@ struct ExplorePage: View {
 struct InfluencerExplorePage: View {
     var goBack: () -> Void = {}
     var goToUpload: () -> Void = {}
+    var goToCart: () -> Void = {}
     var body: some View {
         VStack(spacing: 0) {
             // Header: Back Button and Title
@@ -1105,7 +1132,9 @@ struct InfluencerExplorePage: View {
                     Image(systemName: "plus.circle")
                 }
                 Spacer()
-                Image(systemName: "cart")
+                Button(action: goToCart) {
+                    Image(systemName: "cart")
+                }
                 Spacer()
                 Image(systemName: "person.crop.circle")
                 Spacer()
@@ -1123,6 +1152,7 @@ struct InfluencerExplorePage: View {
 struct UploadPage: View {
     var goToMain: () -> Void = {}
     var goToExplore: () -> Void = {}
+    var goToCart: () -> Void = {}
     var body: some View {
         VStack(spacing: 0) {
             // Header: App Title
@@ -1195,7 +1225,9 @@ struct UploadPage: View {
                         .foregroundColor(.accentColor)
                 }
                 Spacer()
-                Image(systemName: "cart")
+                Button(action: goToCart) {
+                    Image(systemName: "cart")
+                }
                 Spacer()
                 Image(systemName: "person.crop.circle")
                 Spacer()
@@ -1213,6 +1245,7 @@ struct UploadPage: View {
 struct LoadingPage: View {
     var onComplete: () -> Void = {}
     @State private var progress: CGFloat = 0.0
+    var goToCart: () -> Void = {}
     var body: some View {
         VStack(spacing: 0) {
             Text("CRAIIVE")
@@ -1247,7 +1280,9 @@ struct LoadingPage: View {
                 Spacer()
                 Image(systemName: "plus.circle")
                 Spacer()
-                Image(systemName: "cart")
+                Button(action: goToCart) {
+                    Image(systemName: "cart")
+                }
                 Spacer()
                 Image(systemName: "person.crop.circle")
                 Spacer()
@@ -1447,6 +1482,7 @@ struct SearchPage: View {
     var goToUpload: () -> Void = {}
     var onSubmit: (String) -> Void = { _ in }
     var goBack: () -> Void = {}
+    var goToCart: () -> Void = {}
     @State private var searchText: String = ""
     var body: some View {
         VStack(spacing: 0) {
@@ -1518,7 +1554,9 @@ struct SearchPage: View {
                     Image(systemName: "plus.circle")
                 }
                 Spacer()
-                Image(systemName: "cart")
+                Button(action: goToCart) {
+                    Image(systemName: "cart")
+                }
                 Spacer()
                 Image(systemName: "person.crop.circle")
                 Spacer()
@@ -1531,7 +1569,175 @@ struct SearchPage: View {
     }
 }
 
-// MARK: - TODO: Replace all placeholder images and icons with real assets and shared components as per Figma when available.
+// MARK: - Shopping Page (Figma-inspired)
+struct ShoppingPage: View {
+    var goToMain: () -> Void = {}
+    var goToExplore: () -> Void = {}
+    var goToUpload: () -> Void = {}
+    var goToCart: () -> Void = {}
+    var goToProfile: () -> Void = {}
+    @State private var selectedFilter: String = "All"
+    let filters = ["All", "Produce", "Dairy", "Favorites", "Meat"]
+    let sections: [(String, [(String, String, String, String)])] = [
+        ("Most Purchased", [
+            ("Broccoli", "$1.75/lb", "Walmart", "photo"),
+            ("Eggs", "$4.12/dozen", "Whole Foods", "photo")
+        ]),
+        ("Almost Out", [
+            ("Flour", "$3.49/5lb", "Target", "photo"),
+            ("Raspberries", "$8.00/lb", "Whole Foods", "photo")
+        ]),
+        ("CRAIIVE Picks", [
+            ("Bell Peppers", "$2.15/lb", "Stop & Shop", "photo"),
+            ("Avocado", "$0.99", "Trader Joe's", "photo")
+        ]),
+        ("Top Savings", [
+            ("Banza", "$4.99", "Whole Foods", "photo"),
+            ("Bagels", "$3.00/per 6", "Stop & Shop", "photo")
+        ]),
+        ("Expiring Soon", [
+            ("Milk", "$2.99/gal", "Stop & Shop", "photo"),
+            ("Spinach", "$1.99/bag", "Trader Joe's", "photo")
+        ])
+    ]
+    var body: some View {
+        VStack(spacing: 0) {
+            // Header
+            HStack {
+                Text("CRAIIVE")
+                    .font(.system(size: 36, weight: .bold))
+                Spacer()
+                Button(action: goToCart) {
+                    Image(systemName: "cart")
+                        .resizable()
+                        .frame(width: 32, height: 32)
+                        .padding(.trailing, 8)
+                }
+            }
+            .padding(.top, 8)
+            .padding(.horizontal)
+            // Search Bar
+            HStack {
+                Image(systemName: "magnifyingglass")
+                    .foregroundColor(.gray)
+                Text("Search for ingredients")
+                    .foregroundColor(.gray)
+                Spacer()
+            }
+            .padding()
+            .background(Color(.systemGray6))
+            .cornerRadius(12)
+            .padding(.horizontal)
+            // Filter Pills
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 12) {
+                    ForEach(filters, id: \.self) { filter in
+                        Button(action: { selectedFilter = filter }) {
+                            Text(filter)
+                                .padding(.horizontal, 16)
+                                .padding(.vertical, 8)
+                                .background(selectedFilter == filter ? Color(.label) : Color(.systemBackground))
+                                .foregroundColor(selectedFilter == filter ? .white : .black)
+                                .clipShape(Capsule())
+                                .overlay(
+                                    Capsule().stroke(Color(.systemGray3), lineWidth: selectedFilter == filter ? 0 : 1)
+                                )
+                        }
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.vertical, 8)
+            }
+            // Sections
+            ScrollView {
+                VStack(alignment: .leading, spacing: 24) {
+                    ForEach(sections, id: \.0) { section in
+                        VStack(alignment: .leading, spacing: 8) {
+                            HStack {
+                                Text(section.0)
+                                    .font(.headline)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .foregroundColor(.gray)
+                            }
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 16) {
+                                    ForEach(section.1, id: \.0) { item in
+                                        ShoppingCardView(name: item.0, price: item.1, store: item.2, imageName: item.3)
+                                    }
+                                }
+                                .padding(.vertical, 4)
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 80)
+            }
+            // Bottom Navigation Bar
+            Divider()
+            HStack {
+                Spacer()
+                Button(action: goToMain) {
+                    Image(systemName: "circle")
+                }
+                Spacer()
+                Button(action: goToExplore) {
+                    Image(systemName: "magnifyingglass")
+                }
+                Spacer()
+                Button(action: goToUpload) {
+                    Image(systemName: "plus.circle")
+                }
+                Spacer()
+                Button(action: goToCart) {
+                    Image(systemName: "cart")
+                        .foregroundColor(.accentColor)
+                }
+                Spacer()
+                Button(action: goToProfile) {
+                    Image(systemName: "person.crop.circle")
+                }
+                Spacer()
+            }
+            .frame(height: 64)
+            .background(Color(.systemBackground))
+        }
+        .edgesIgnoringSafeArea(.bottom)
+        .navigationBarBackButtonHidden(true)
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+// Shopping Card View
+struct ShoppingCardView: View {
+    var name: String
+    var price: String
+    var store: String
+    var imageName: String
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Image(systemName: imageName)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .frame(width: 80, height: 60)
+                .background(Color(.systemGray5))
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+            Text(name)
+                .font(.headline)
+            Text(price)
+                .font(.subheadline)
+                .foregroundColor(.gray)
+            Text(store)
+                .font(.caption)
+                .foregroundColor(.gray)
+        }
+        .frame(width: 140, height: 120)
+        .background(Color(.systemBackground))
+        .cornerRadius(16)
+        .shadow(color: Color(.black).opacity(0.08), radius: 4, x: 0, y: 2)
+    }
+}
 
 #Preview {
     // Preview MyFridgePage for development
