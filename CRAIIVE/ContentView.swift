@@ -566,6 +566,17 @@ struct MyFridgePage: View {
     var goToCart: () -> Void = {}
     var body: some View {
         VStack(spacing: 0) {
+            HStack {
+                Button(action: goToMain) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                }
+                .padding(.leading, 8)
+                Spacer()
+            }
+            .padding(.top, 8)
             // Header: App Title
             Text("CRAIIVE")
                 .font(.system(size: 36, weight: .bold))
@@ -681,6 +692,17 @@ struct MyFreezerPage: View {
     var goToCart: () -> Void = {}
     var body: some View {
         VStack(spacing: 0) {
+            HStack {
+                Button(action: goToMain) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                }
+                .padding(.leading, 8)
+                Spacer()
+            }
+            .padding(.top, 8)
             // Header: App Title
             Text("CRAIIVE")
                 .font(.system(size: 36, weight: .bold))
@@ -793,6 +815,17 @@ struct MyPantryPage: View {
     var goToCart: () -> Void = {}
     var body: some View {
         VStack(spacing: 0) {
+            HStack {
+                Button(action: goToMain) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                }
+                .padding(.leading, 8)
+                Spacer()
+            }
+            .padding(.top, 8)
             // Header: App Title
             Text("CRAIIVE")
                 .font(.system(size: 36, weight: .bold))
