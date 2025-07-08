@@ -30,6 +30,9 @@ struct ContentView: View {
     @State private var showInfluencerExplore = false
     @State private var showUpload = false
     @State private var showSearch = false
+    @State private var showLoading = false
+    @State private var showRecipe = false
+    @State private var lastSearch: String = ""
     var body: some View {
         NavigationStack(path: $path) {
             VStack(spacing: 0) {
@@ -180,8 +183,22 @@ struct ContentView: View {
                 SearchPage(
                     goToMain: { showSearch = false; path = NavigationPath() },
                     goToExplore: { showSearch = false; showExplore = true },
-                    goToUpload: { showUpload = true }
+                    goToUpload: { showUpload = true },
+                    onSubmit: { query in
+                        lastSearch = query
+                        showSearch = false
+                        showLoading = true
+                    }
                 )
+            }
+            .navigationDestination(isPresented: $showLoading) {
+                LoadingPage(onComplete: {
+                    showLoading = false
+                    showRecipe = true
+                })
+            }
+            .navigationDestination(isPresented: $showRecipe) {
+                RecipePage(recipeTitle: lastSearch.isEmpty ? "Creamy Tomato Gnocchi" : lastSearch)
             }
         }
     }
@@ -1183,19 +1200,224 @@ struct UploadPage: View {
     }
 }
 
+// MARK: - Loading Page
+struct LoadingPage: View {
+    var onComplete: () -> Void = {}
+    @State private var progress: CGFloat = 0.0
+    var body: some View {
+        VStack(spacing: 0) {
+            Text("CRAIIVE")
+                .font(.system(size: 36, weight: .bold))
+                .padding(.top, 8)
+                .padding(.bottom, 8)
+            Spacer()
+            VStack(spacing: 32) {
+                ProgressView(value: progress)
+                    .progressViewStyle(LinearProgressViewStyle(tint: .blue))
+                    .frame(width: 320)
+                    .scaleEffect(x: 1, y: 2, anchor: .center)
+                    .padding(.bottom, 16)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Sourcing your flavor fix...")
+                        .font(.title3).fontWeight(.bold)
+                        .foregroundColor(.black)
+                    Text("Just a sec!")
+                        .font(.body)
+                        .foregroundColor(.gray)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.leading, 32)
+            }
+            Spacer()
+            Divider()
+            HStack {
+                Spacer()
+                Image(systemName: "circle")
+                Spacer()
+                Image(systemName: "magnifyingglass")
+                Spacer()
+                Image(systemName: "plus.circle")
+                Spacer()
+                Image(systemName: "cart")
+                Spacer()
+                Image(systemName: "person.crop.circle")
+                Spacer()
+            }
+            .frame(height: 64)
+            .background(Color(.systemBackground))
+        }
+        .edgesIgnoringSafeArea(.bottom)
+        .onAppear {
+            progress = 0.0
+            withAnimation(Animation.linear(duration: 2.0)) {
+                progress = 1.0
+            }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) {
+                onComplete()
+            }
+        }
+    }
+}
+
+// MARK: - Recipe Page (Sample)
+struct RecipePage: View {
+    var recipeTitle: String = "Creamy Tomato Gnocchi"
+    var recipeImage: String = "photo" // Use system image as placeholder
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 0) {
+                Text("CRAIIVE")
+                    .font(.system(size: 36, weight: .bold))
+                    .padding(.top, 8)
+                    .padding(.bottom, 8)
+                Image(recipeImage)
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 180, height: 180)
+                    .clipShape(Circle())
+                    .overlay(Circle().stroke(Color.white, lineWidth: 4))
+                    .shadow(radius: 8)
+                    .padding(.bottom, 8)
+                HStack {
+                    HStack(spacing: 4) {
+                        Image(systemName: "clock")
+                        Text("30 mins")
+                            .font(.headline)
+                    }
+                    Spacer()
+                    Text("Medium")
+                        .font(.headline)
+                    Image(systemName: "star.fill")
+                        .foregroundColor(.black)
+                    Image(systemName: "star.fill")
+                        .foregroundColor(.black)
+                }
+                .padding(.horizontal, 32)
+                .padding(.bottom, 8)
+                Text(recipeTitle)
+                    .font(.title)
+                    .fontWeight(.bold)
+                    .padding(.bottom, 2)
+                Text("A rich, comforting one-pot dinner ready in under 30 minutes")
+                    .font(.body)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 8)
+                HStack(spacing: 8) {
+                    ForEach(["Quick", "Vegetarian", "One-Pot"], id: \.self) { tag in
+                        Text(tag)
+                            .padding(.horizontal, 12)
+                            .padding(.vertical, 6)
+                            .background(Color.white)
+                            .cornerRadius(8)
+                            .overlay(RoundedRectangle(cornerRadius: 8).stroke(Color.gray, lineWidth: 1))
+                    }
+                }
+                .padding(.bottom, 8)
+                Divider().padding(.vertical, 8)
+                VStack(alignment: .leading, spacing: 0) {
+                    Text("Ingredients")
+                        .font(.title2).fontWeight(.bold)
+                        .padding(.bottom, 2)
+                    Text("Stocked")
+                        .font(.headline)
+                        .padding(.bottom, 2)
+                    VStack(alignment: .leading, spacing: 2) {
+                        ForEach([
+                            "1 lb fresh gnocchi",
+                            "3 cloves garlic, minced",
+                            "2 cups cherry tomatoes, halved",
+                            "1/2 cup vegetable broth",
+                            "4 oz lighter cream cheese",
+                            "Oregano, Italian seasoning, thyme",
+                            "Olive oil, salt, and pepper"
+                        ], id: \.self) { item in
+                            HStack {
+                                Image(systemName: "square")
+                                Text(item)
+                            }
+                        }
+                    }
+                    .padding(.bottom, 4)
+                    Text("To buy")
+                        .font(.headline)
+                        .foregroundColor(.red)
+                        .padding(.top, 4)
+                    VStack(alignment: .leading, spacing: 2) {
+                        ForEach([
+                            "1 red onion, diced",
+                            "2 tbsp tomato paste",
+                            "1/2 cup shredded mozzarella"
+                        ], id: \.self) { item in
+                            HStack {
+                                Image(systemName: "square")
+                                    .foregroundColor(.red)
+                                Text(item).foregroundColor(.red)
+                            }
+                        }
+                    }
+                    Divider().padding(.vertical, 4)
+                    HStack {
+                        Spacer()
+                        Text("Estimated: $9.75")
+                            .font(.headline)
+                            .foregroundColor(.red)
+                        Spacer()
+                    }
+                }
+                .padding(.horizontal, 24)
+                Divider().padding(.vertical, 8)
+                Text("STEPS")
+                    .font(.title2).fontWeight(.bold)
+                    .padding(.bottom, 2)
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("1. Sauté the Aromatics")
+                        .font(.headline)
+                    Text("Cook onion in olive oil 5–6 min")
+                        .font(.body)
+                }
+                .padding(.horizontal, 24)
+                Spacer(minLength: 40)
+            }
+        }
+        .edgesIgnoringSafeArea(.bottom)
+        .overlay(
+            VStack {
+                Spacer()
+                Divider()
+                HStack {
+                    Spacer()
+                    Image(systemName: "circle")
+                    Spacer()
+                    Image(systemName: "magnifyingglass")
+                    Spacer()
+                    Image(systemName: "plus.circle")
+                    Spacer()
+                    Image(systemName: "cart")
+                    Spacer()
+                    Image(systemName: "person.crop.circle")
+                    Spacer()
+                }
+                .frame(height: 64)
+                .background(Color(.systemBackground))
+            }
+        )
+    }
+}
+
 // MARK: - Search Page (Figma-inspired)
 struct SearchPage: View {
     var goToMain: () -> Void = {}
     var goToExplore: () -> Void = {}
     var goToUpload: () -> Void = {}
+    var onSubmit: (String) -> Void = { _ in }
+    @State private var searchText: String = ""
     var body: some View {
         VStack(spacing: 0) {
-            // Header: App Title
             Text("CRAIIVE")
                 .font(.system(size: 36, weight: .bold))
                 .padding(.top, 8)
                 .padding(.bottom, 8)
-            // Centered Card with text
             Spacer()
             ZStack {
                 RoundedRectangle(cornerRadius: 24)
@@ -1216,20 +1438,23 @@ struct SearchPage: View {
                 .foregroundColor(.black)
             }
             .padding(.bottom, 32)
-            // Search Bar
+            // Editable Search Bar
             HStack {
                 Image(systemName: "magnifyingglass")
                     .foregroundColor(.gray)
-                Text("ex. minimalist breakfast, indulgent tr")
-                    .foregroundColor(.gray)
-                Spacer()
+                TextField("ex. minimalist breakfast, indulgent tr", text: $searchText, onCommit: {
+                    if !searchText.isEmpty {
+                        onSubmit(searchText)
+                    }
+                })
+                .foregroundColor(.primary)
+                .submitLabel(.search)
             }
             .padding()
             .background(Color(.systemGray6))
             .cornerRadius(12)
             .padding(.horizontal)
             Spacer()
-            // Bottom Navigation Bar (reuse from main page)
             Divider()
             HStack {
                 Spacer()
