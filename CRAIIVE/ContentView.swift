@@ -201,7 +201,7 @@ struct ContentView: View {
                 LoadingPage(onComplete: {
                     showLoading = false
                     showRecipe = true
-                }, goToCart: { showShopping = true })
+                }, goToMain: { showLoading = false; path = NavigationPath() }, goToExplore: { showLoading = false; showExplore = true }, goToUpload: { showLoading = false; showUpload = true }, goToCart: { showLoading = false; showShopping = true })
             }
             .navigationDestination(isPresented: $showRecipe) {
                 RecipePage(
@@ -1245,6 +1245,9 @@ struct UploadPage: View {
 struct LoadingPage: View {
     var onComplete: () -> Void = {}
     @State private var progress: CGFloat = 0.0
+    var goToMain: () -> Void = {}
+    var goToExplore: () -> Void = {}
+    var goToUpload: () -> Void = {}
     var goToCart: () -> Void = {}
     var body: some View {
         VStack(spacing: 0) {
@@ -1274,11 +1277,17 @@ struct LoadingPage: View {
             Divider()
             HStack {
                 Spacer()
-                Image(systemName: "circle")
+                Button(action: goToMain) {
+                    Image(systemName: "circle")
+                }
                 Spacer()
-                Image(systemName: "magnifyingglass")
+                Button(action: goToExplore) {
+                    Image(systemName: "magnifyingglass")
+                }
                 Spacer()
-                Image(systemName: "plus.circle")
+                Button(action: goToUpload) {
+                    Image(systemName: "plus.circle")
+                }
                 Spacer()
                 Button(action: goToCart) {
                     Image(systemName: "cart")
