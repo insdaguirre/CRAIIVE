@@ -188,7 +188,8 @@ struct ContentView: View {
                         lastSearch = query
                         showSearch = false
                         showLoading = true
-                    }
+                    },
+                    goBack: { showSearch = false; showExplore = true }
                 )
             }
             .navigationDestination(isPresented: $showLoading) {
@@ -204,7 +205,8 @@ struct ContentView: View {
                     goToExplore: { showRecipe = false; showExplore = true },
                     goToUpload: { showRecipe = false; showUpload = true },
                     goToCart: {},
-                    goToProfile: {}
+                    goToProfile: {},
+                    goBack: { showRecipe = false; showSearch = true }
                 )
             }
         }
@@ -1275,8 +1277,20 @@ struct RecipePage: View {
     var goToUpload: () -> Void = {}
     var goToCart: () -> Void = {}
     var goToProfile: () -> Void = {}
+    var goBack: () -> Void = {}
     var body: some View {
         VStack(spacing: 0) {
+            HStack {
+                Button(action: goBack) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                }
+                .padding(.leading, 8)
+                Spacer()
+            }
+            .padding(.top, 8)
             ScrollView {
                 VStack(spacing: 0) {
                     Text("CRAIIVE")
@@ -1391,7 +1405,7 @@ struct RecipePage: View {
                     }
                     .padding(.horizontal, 24)
                 }
-                .padding(.bottom, 80) // Add bottom padding for nav bar
+                .padding(.bottom, 80)
             }
             Divider()
             HStack {
@@ -1432,9 +1446,21 @@ struct SearchPage: View {
     var goToExplore: () -> Void = {}
     var goToUpload: () -> Void = {}
     var onSubmit: (String) -> Void = { _ in }
+    var goBack: () -> Void = {}
     @State private var searchText: String = ""
     var body: some View {
         VStack(spacing: 0) {
+            HStack {
+                Button(action: goBack) {
+                    HStack(spacing: 4) {
+                        Image(systemName: "chevron.left")
+                        Text("Back")
+                    }
+                }
+                .padding(.leading, 8)
+                Spacer()
+            }
+            .padding(.top, 8)
             Text("CRAIIVE")
                 .font(.system(size: 36, weight: .bold))
                 .padding(.top, 8)
@@ -1501,6 +1527,7 @@ struct SearchPage: View {
             .background(Color(.systemBackground))
         }
         .edgesIgnoringSafeArea(.bottom)
+        .navigationBarBackButtonHidden(true)
     }
 }
 
