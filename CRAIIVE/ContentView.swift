@@ -1618,15 +1618,17 @@ struct ShoppingPage: View {
     var body: some View {
         VStack(spacing: 0) {
             // Header
-            HStack {
+            ZStack {
                 Text("CRAIIVE")
                     .font(.system(size: 36, weight: .bold))
-                Spacer()
-                Button(action: goToCart) {
-                    Image(systemName: "cart")
-                        .resizable()
-                        .frame(width: 32, height: 32)
-                        .padding(.trailing, 8)
+                HStack {
+                    Spacer()
+                    Button(action: goToCart) {
+                        Image(systemName: "cart")
+                            .resizable()
+                            .frame(width: 32, height: 32)
+                            .padding(.trailing, 8)
+                    }
                 }
             }
             .padding(.top, 8)
