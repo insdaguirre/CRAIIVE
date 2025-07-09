@@ -576,7 +576,7 @@ struct MyFridgePage: View {
                 .padding(.leading, 8)
                 Spacer()
             }
-            .padding(.top, 8)
+            .padding(.top, 0)
             // Header: App Title
             Text("CRAIIVE")
                 .font(.system(size: 36, weight: .bold))
@@ -702,7 +702,7 @@ struct MyFreezerPage: View {
                 .padding(.leading, 8)
                 Spacer()
             }
-            .padding(.top, 8)
+            .padding(.top, 0)
             // Header: App Title
             Text("CRAIIVE")
                 .font(.system(size: 36, weight: .bold))
@@ -825,7 +825,7 @@ struct MyPantryPage: View {
                 .padding(.leading, 8)
                 Spacer()
             }
-            .padding(.top, 8)
+            .padding(.top, 0)
             // Header: App Title
             Text("CRAIIVE")
                 .font(.system(size: 36, weight: .bold))
